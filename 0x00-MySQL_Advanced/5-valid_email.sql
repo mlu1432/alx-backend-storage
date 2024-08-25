@@ -1,15 +1,16 @@
--- Initial setup: Create the users table and insert initial data
+-- 5-valid_email.sql
+-- This script creates a trigger that resets the valid_email attribute
+-- to 0 (false) whenever the email field is updated to a new value.
 
-DROP TABLE IF EXISTS users;
+DELIMITER $$
 
-CREATE TABLE IF NOT EXISTS users (
-    id int not null AUTO_INCREMENT,
-    email varchar(255) not null,
-    name varchar(255),
-    valid_email boolean not null default 0,
-    PRIMARY KEY (id)
-);
+CREATE TRIGGER reset_valid_email_before_update
+BEFORE UPDATE ON users
+FOR EACH ROW
+BEGIN
+    IF NEW.email != OLD.email THEN
+        SET NEW.valid_email = 0;
+    END IF;
+END$$
 
-INSERT INTO users (email, name) VALUES ("bob@dylan.com", "Bob");
-INSERT INTO users (email, name, valid_email) VALUES ("sylvie@dylan.com", "Sylvie", 1);
-INSERT INTO users (email, name, valid_email) VALUES ("jeanne@dylan.com", "Jeanne", 1);
+DELIMITER ;
